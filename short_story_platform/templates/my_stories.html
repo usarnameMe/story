@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>My Stories</h2>
+{% for story in stories %}
+    <div class="story">
+        <h3>{{ story.title }}</h3>
+        <p>{{ story.content }}</p>
+        <a href="{% url 'story_detail' story.id %}">Edit</a>
+        <form method="post" action="{% url 'story_delete' story.id %}">
+            {% csrf_token %}
+            <button type="submit">Delete</button>
+        </form>
+    </div>
+{% empty %}
+    <p>You haven't written any stories yet.</p>
+{% endfor %}
+{% endblock %}
