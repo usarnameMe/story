@@ -1,5 +1,4 @@
 from random import randint
-
 from django.contrib.auth.forms import UserCreationForm
 from django.shortcuts import render, get_object_or_404
 from django.urls import reverse_lazy
@@ -10,6 +9,7 @@ from .models import CustomUser, Story
 from .serializers import CustomUserSerializer, StorySerializer
 import redis
 
+# Connecting to Redis
 redis_client = redis.StrictRedis(host='127.0.0.1', port=6379, db=0)
 
 
