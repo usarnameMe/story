@@ -1,7 +1,22 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block content %}
-<h2>User Profile</h2>
+<h1>User Profile</h1>
 <p>Username: {{ user.username }}</p>
 <p>Email: {{ user.email }}</p>
+
+{% if user.profile_image %}
+    <img src="{{ user.profile_image.url }}" alt="Profile Image" style="width: 150px; height: 150px; border-radius: 50%;">
+    <a href="{% url 'update_profile_image' %}">
+        <button style="display: inline-flex; align-items: center; background-color: transparent; border: none; cursor: pointer;">
+            <img src="{% static 'pen_icon.png' %}" alt="Edit" style="width: 20px; height: 20px;">
+        </button>
+    </a>
+{% else %}
+    <p>No profile image uploaded.</p>
+    <a href="{% url 'update_profile_image' %}">
+        <button>Upload Image</button>
+    </a>
+{% endif %}
 {% endblock %}
