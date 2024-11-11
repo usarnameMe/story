@@ -42,7 +42,15 @@ def my_stories_page(request):
 @login_required
 def story_detail_page(request, pk):
     story = get_object_or_404(Story, id=pk, author=request.user)
-    return render(request, 'story_detail.html', {'story': story})
+    if request.method == 'POST':
+        form = StoryForm(request.POST, instance=story)
+        if form.is_valid():
+            form.save()
+            return redirect('my_stories')
+    else:
+        form = StoryForm(instance=story)
+
+    return render(request, 'story_detail.html', {'form': form, 'story': story})
 
 
 @login_required
@@ -113,7 +121,7 @@ def create_story(request):
 
 @login_required
 def edit_story(request, pk):
-    story_instance = get_object_or_404(Story, pk=pk)
+    story_instance = get_object_or_404(Story, pk=pk, author=request.user)
     if request.method == 'POST':
         form = StoryForm(request.POST, instance=story_instance)
         if form.is_valid():
@@ -122,7 +130,7 @@ def edit_story(request, pk):
     else:
         form = StoryForm(instance=story_instance)
 
-    return render(request, 'edit_story.html', {'form': form})
+    return render(request, 'story_detail.html', {'form': form, 'story': story_instance})
 
 
 @login_required
