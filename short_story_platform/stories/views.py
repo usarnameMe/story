@@ -9,9 +9,9 @@ from django.views.generic import CreateView
 from rest_framework import generics, permissions, status, views
 from rest_framework.response import Response
 
-from .forms import ProfileImageForm, StoryForm
-from .models import CustomUser, Story
-from .serializers import CustomUserSerializer, StorySerializer
+from .forms import ProfileImageForm, StoryForm, CustomUserCreationForm
+from .models import Story
+from .serializers import StorySerializer
 import redis
 
 redis_client = redis.StrictRedis(host='127.0.0.1', port=6379, db=0)
@@ -19,37 +19,32 @@ redis_client = redis.StrictRedis(host='127.0.0.1', port=6379, db=0)
 
 class RegisterUserView(CreateView):
     template_name = 'register.html'
-    form_class = UserCreationForm
+    form_class = CustomUserCreationForm
     success_url = reverse_lazy('login')
 
 
-# Regular view for the profile page
 @login_required
 def profile_page(request):
     return render(request, 'profile.html', {'user': request.user})
 
 
-# Regular view for listing public stories
 def story_list_create_page(request):
     stories = Story.objects.filter(is_public=True)
     return render(request, 'story_list.html', {'stories': stories})
 
 
-# Regular view for listing the user's own stories
 @login_required
 def my_stories_page(request):
     stories = Story.objects.filter(author=request.user)
     return render(request, 'my_stories.html', {'stories': stories})
 
 
-# Regular view for story details
 @login_required
 def story_detail_page(request, pk):
     story = get_object_or_404(Story, id=pk, author=request.user)
     return render(request, 'story_detail.html', {'story': story})
 
 
-# Regular view for updating profile image
 @login_required
 def update_profile_image(request):
     if request.method == 'POST':
@@ -62,7 +57,6 @@ def update_profile_image(request):
     return render(request, 'update_profile_image.html', {'form': form})
 
 
-# APIView for creating stories
 class CreateStoryAPIView(views.APIView):
     permission_classes = [permissions.IsAuthenticated]
 
@@ -74,7 +68,6 @@ class CreateStoryAPIView(views.APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-# Generic view for listing and creating stories
 class StoryListCreateView(generics.ListCreateAPIView):
     queryset = Story.objects.all()
     serializer_class = StorySerializer
@@ -84,7 +77,6 @@ class StoryListCreateView(generics.ListCreateAPIView):
         serializer.save(author=self.request.user)
 
 
-# Regular view for deleting a story
 @login_required
 def delete_story(request, pk):
     story = get_object_or_404(Story, pk=pk, author=request.user)
@@ -93,7 +85,6 @@ def delete_story(request, pk):
         return redirect('my_stories')
 
 
-# Regular view for toggling story visibility
 @login_required
 def toggle_story_visibility(request, pk):
     story = get_object_or_404(Story, pk=pk, author=request.user)
@@ -127,7 +118,7 @@ def edit_story(request, pk):
         form = StoryForm(request.POST, instance=story_instance)
         if form.is_valid():
             form.save()
-            return redirect('my_stories')  # Replace with the correct redirect URL
+            return redirect('my_stories')
     else:
         form = StoryForm(instance=story_instance)
 
@@ -143,7 +134,6 @@ def delete_story(request, pk):
     return render(request, 'delete_story.html', {'story': story})
 
 
-# View for generating a verification code
 class GenerateCodeView(views.APIView):
     permission_classes = [permissions.IsAuthenticated]
 
