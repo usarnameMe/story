@@ -1,8 +1,10 @@
+{% load static %}
+<link rel="stylesheet" href="{% static 'styles.css' %}">
 {% block content %}
-<h2>Update Profile Image</h2>
+<h2>Update Profile Information</h2>
 <form method="post" enctype="multipart/form-data">
     {% csrf_token %}
     {{ form.as_p }}
-    <button type="submit">Upload</button>
+    <button type="submit">Save Changes</button>
 </form>
 {% endblock %}

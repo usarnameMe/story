@@ -8,7 +8,6 @@ class CustomUser(AbstractUser):
 
 
 class Story(models.Model):
-    objects = None
     title = models.CharField(max_length=255)
     content = models.TextField()
     is_public = models.BooleanField(default=False)

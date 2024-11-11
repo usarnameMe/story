@@ -1,14 +1,11 @@
 from random import randint
-
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.forms import UserCreationForm
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse
 from django.urls import reverse_lazy
 from django.views.generic import CreateView
 from rest_framework import generics, permissions, status, views
 from rest_framework.response import Response
-
 from .forms import ProfileImageForm, StoryForm, CustomUserCreationForm
 from .models import Story
 from .serializers import StorySerializer
@@ -49,7 +46,6 @@ def story_detail_page(request, pk):
             return redirect('my_stories')
     else:
         form = StoryForm(instance=story)
-
     return render(request, 'story_detail.html', {'form': form, 'story': story})
 
 
@@ -91,6 +87,7 @@ def delete_story(request, pk):
     if request.method == 'POST':
         story.delete()
         return redirect('my_stories')
+    return render(request, 'delete_story.html', {'story': story})
 
 
 @login_required
@@ -98,10 +95,8 @@ def toggle_story_visibility(request, pk):
     story = get_object_or_404(Story, pk=pk, author=request.user)
     story.is_public = not story.is_public
     story.save()
-
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
         return JsonResponse({'status': 'success', 'is_public': story.is_public})
-
     return redirect('my_stories')
 
 
@@ -129,17 +124,7 @@ def edit_story(request, pk):
             return redirect('my_stories')
     else:
         form = StoryForm(instance=story_instance)
-
     return render(request, 'story_detail.html', {'form': form, 'story': story_instance})
-
-
-@login_required
-def delete_story(request, pk):
-    story = get_object_or_404(Story, pk=pk, author=request.user)
-    if request.method == 'POST':
-        story.delete()
-        return redirect('my_stories')
-    return render(request, 'delete_story.html', {'story': story})
 
 
 class GenerateCodeView(views.APIView):
