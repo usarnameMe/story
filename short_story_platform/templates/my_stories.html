@@ -1,10 +1,30 @@
 {% extends "base.html" %}
 {% block content %}
+{% load static %}
+
 <h2>My Stories</h2>
+<button id="add-story-btn">Add New Story</button>
+
+<div id="new-story-form" style="display:none;">
+    <form method="post" action="{% url 'story_create' %}" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input type="text" name="title" placeholder="Story Title" required>
+        <textarea name="content" placeholder="Story Content" required></textarea>
+        <button type="submit">Create Story</button>
+    </form>
+</div>
+
 {% for story in stories %}
     <div class="story">
         <h3>{{ story.title }}</h3>
         <p>{{ story.content }}</p>
+        <button class="toggle-visibility-btn" data-id="{{ story.id }}">
+            {% if story.is_public %}
+                <span title="Make Private">🌐 Public</span>
+            {% else %}
+                <span title="Make Public">🔒 Private</span>
+            {% endif %}
+        </button>
         <a href="{% url 'story_detail' story.id %}">Edit</a>
         <form method="post" action="{% url 'story_delete' story.id %}">
             {% csrf_token %}
@@ -14,4 +34,38 @@
 {% empty %}
     <p>You haven't written any stories yet.</p>
 {% endfor %}
+
+<script>
+    document.querySelectorAll('.toggle-visibility-btn').forEach(button => {
+    button.addEventListener('click', function() {
+        const storyId = this.getAttribute('data-id');
+        const currentButton = this;
+
+        fetch(`/accounts/stories/toggle-visibility/${storyId}/`, {
+            method: 'GET',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Cache-Control': 'no-cache'
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                if (data.is_public) {
+                    currentButton.innerHTML = '<span title="Make Private">🌐 Public</span>';
+                } else {
+                    currentButton.innerHTML = '<span title="Make Public">🔒 Private</span>';
+                }
+                // Optional: Add a small animation or style change for user feedback
+                currentButton.classList.add('updated');
+                setTimeout(() => {
+                    currentButton.classList.remove('updated');
+                }, 500);
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    });
+});
+
+</script>
 {% endblock %}

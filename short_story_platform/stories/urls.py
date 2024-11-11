@@ -1,7 +1,11 @@
 from django.urls import path
+from .views import (
+    RegisterUserView, GenerateCodeView, profile_page, story_list_create_page,
+    my_stories_page, story_detail_page, update_profile_image,
+    create_story, delete_story, toggle_story_visibility,
+    CreateStoryAPIView, StoryListCreateView, edit_story
+)
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView, TokenVerifyView
-from .views import RegisterUserView, GenerateCodeView, profile_page, story_list_create_page, my_stories_page, \
-    story_detail_page, update_profile_image
 from django.contrib.auth.views import LoginView, LogoutView
 
 urlpatterns = [
@@ -14,7 +18,14 @@ urlpatterns = [
     path('generate-code/', GenerateCodeView.as_view(), name='generate_code'),
     path('login/', LoginView.as_view(template_name='registration/login.html'), name='login'),
     path('logout/', LogoutView.as_view(), name='logout'),
-    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
-    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-    path('api/token/verify/', TokenVerifyView.as_view(), name='token_verify'),
+
+    # Custom story paths
+    path('stories/create/', create_story, name='story_create'),
+    # path('stories/edit/<int:pk>/', edit_story, name='story_edit'),
+    path('stories/delete/<int:pk>/', delete_story, name='story_delete'),
+    path('stories/toggle-visibility/<int:pk>/', toggle_story_visibility, name='story_toggle_visibility'),
+
+    # API paths
+    path('stories/api/create/', CreateStoryAPIView.as_view(), name='api_story_create'),
+    path('stories/api/list-create/', StoryListCreateView.as_view(), name='api_story_list_create'),
 ]
