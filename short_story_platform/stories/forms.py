@@ -1,6 +1,8 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
+
 from .models import CustomUser, Story
+
 
 class ProfileImageForm(forms.ModelForm):
     class Meta:
@@ -12,6 +14,7 @@ class StoryForm(forms.ModelForm):
     class Meta:
         model = Story
         fields = ['title', 'content', 'is_public']
+
 
 class CustomUserCreationForm(UserCreationForm):
     email = forms.EmailField(required=True)
