@@ -6,10 +6,13 @@ from django.urls import reverse_lazy
 from django.views.generic import CreateView
 from rest_framework import generics, permissions, status, views
 from rest_framework.response import Response
+from rest_framework.views import APIView
+
 from .forms import ProfileImageForm, StoryForm, CustomUserCreationForm
 from .models import Story
 from .serializers import StorySerializer
 import redis
+from .utils import RedisHandler
 
 redis_client = redis.StrictRedis(host='127.0.0.1', port=6379, db=0)
 
@@ -127,10 +130,15 @@ def edit_story(request, pk):
     return render(request, 'story_detail.html', {'form': form, 'story': story_instance})
 
 
-class GenerateCodeView(views.APIView):
-    permission_classes = [permissions.IsAuthenticated]
-
+class FourDigitCodeView(APIView):
     def get(self, request):
-        code = f"{randint(1000, 9999)}"
-        redis_client.setex(f"user_{request.user.id}_code", 3600, code)
-        return Response({"code": code}, status=status.HTTP_200_OK)
+        cache_key = "four_digit_code"
+        cached_code = RedisHandler.get_code(cache_key)
+
+        if cached_code:
+            return Response({"code": cached_code})
+
+        new_code = randint(1000, 9999)
+        RedisHandler.set_code(cache_key, new_code)
+
+        return Response({"code": new_code})
