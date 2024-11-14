@@ -1,4 +1,4 @@
 # story
 
 
-it is ugly, but it works perfectly :D <3
+only with DRF - https://github.com/usarnameMe/sotryy - check this for correct link, sorry.
